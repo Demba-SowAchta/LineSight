@@ -29,11 +29,12 @@ import numpy as np
 @dataclass
 class DetectionResult:
     """The single, uniform output of every detector."""
-    score: float                       # anomaly score, higher = worse
-    is_anomaly: bool                   # final yes/no after thresholding
-    threshold: float                   # threshold used (for the DB audit trail)
-    heatmap: Optional[np.ndarray] = None   # 2D map of where the defect is
-    extra: Optional[dict[str, Any]] = None # any model-specific details
+
+    score: float  # anomaly score, higher = worse
+    is_anomaly: bool  # final yes/no after thresholding
+    threshold: float  # threshold used (for the DB audit trail)
+    heatmap: Optional[np.ndarray] = None  # 2D map of where the defect is
+    extra: Optional[dict[str, Any]] = None  # any model-specific details
 
     @property
     def confidence(self) -> float:
@@ -41,7 +42,9 @@ class DetectionResult:
         How far the score is from the decision boundary, in 0..1.
         Near the threshold = unsure; far from it = confident.
         """
-        return float(min(1.0, abs(self.score - self.threshold) / max(self.threshold, 1e-6)))
+        return float(
+            min(1.0, abs(self.score - self.threshold) / max(self.threshold, 1e-6))
+        )
 
 
 class BaseDetector:

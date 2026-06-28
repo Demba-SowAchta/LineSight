@@ -43,12 +43,12 @@ def build_classifier(num_classes: int = 2):
     Build a ResNet18 with a fresh final layer and a frozen backbone.
     `num_classes=2` -> good vs defect. Increase it for per-defect-type classes.
     """
-    torch = _torch()
+    _torch()
     import torch.nn as nn
     from torchvision import models
 
     net = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
-    for param in net.parameters():           # freeze the pretrained backbone
+    for param in net.parameters():  # freeze the pretrained backbone
         param.requires_grad = False
     net.fc = nn.Linear(net.fc.in_features, num_classes)  # train only this layer
     return net
@@ -58,9 +58,14 @@ class ClassifierDetector(BaseDetector):
     name = "resnet18-classifier-v1"
 
     # By convention class index 1 = "defect". We report its probability as the score.
-    def __init__(self, model=None, threshold: float = 0.5,
-                 image_size: int = 224, device: str = "cpu",
-                 class_names: list[str] | None = None):
+    def __init__(
+        self,
+        model=None,
+        threshold: float = 0.5,
+        image_size: int = 224,
+        device: str = "cpu",
+        class_names: list[str] | None = None,
+    ):
         self.torch = _torch()
         self.model = model
         self.threshold = threshold
@@ -73,6 +78,7 @@ class ClassifierDetector(BaseDetector):
     def _to_tensor(self, image: np.ndarray):
         """Preprocess exactly as ImageNet expects (resize + standard normalisation)."""
         from PIL import Image
+
         torch = self.torch
         pil = Image.fromarray(np.asarray(image, dtype=np.uint8)).convert("RGB")
         pil = pil.resize((self.image_size, self.image_size))
@@ -89,12 +95,12 @@ class ClassifierDetector(BaseDetector):
         with torch.no_grad():
             logits = self.model(x)
             probs = torch.softmax(logits, dim=1).squeeze(0).cpu().numpy()
-        defect_prob = float(probs[1])     # probability of the 'defect' class
+        defect_prob = float(probs[1])  # probability of the 'defect' class
         return DetectionResult(
             score=defect_prob,
             is_anomaly=defect_prob >= self.threshold,
             threshold=self.threshold,
-            heatmap=None,                 # plain classifier has no localisation map
+            heatmap=None,  # plain classifier has no localisation map
             extra={"probs": {n: float(p) for n, p in zip(self.class_names, probs)}},
         )
 

@@ -1,7 +1,7 @@
 """
 AutoencoderDetector -- the RECOMMENDED model for assembly-error detection.
 
-WHY AN AUTOENCODER (the engineering decision):
+WHY AN AUTOENCODER :
 In a factory you can photograph thousands of GOOD parts, but defects are rare and
 endlessly varied (a new scratch, a new missing screw, a colour you never saw).
 You cannot label them all. So instead of learning "what defects look like", we
@@ -38,6 +38,7 @@ def _torch():
     """Import torch only when actually needed, with a friendly error if missing."""
     try:
         import torch  # noqa: F401
+
         return __import__("torch")
     except ImportError as exc:  # pragma: no cover
         raise ImportError(
@@ -54,7 +55,7 @@ def build_autoencoder(image_size: int = 256):
     Decoder: mirrors the encoder to rebuild the original image.
     Kept deliberately small so it trains in minutes on a free Colab T4 GPU.
     """
-    torch = _torch()
+    _torch()
     import torch.nn as nn
 
     class ConvAutoencoder(nn.Module):
@@ -62,17 +63,25 @@ def build_autoencoder(image_size: int = 256):
             super().__init__()
             # Encoder: each block halves the spatial size and adds channels.
             self.encoder = nn.Sequential(
-                nn.Conv2d(3, 32, 4, stride=2, padding=1),   nn.ReLU(True),  # 128
-                nn.Conv2d(32, 64, 4, stride=2, padding=1),  nn.ReLU(True),  # 64
-                nn.Conv2d(64, 128, 4, stride=2, padding=1), nn.ReLU(True),  # 32
-                nn.Conv2d(128, 128, 4, stride=2, padding=1),nn.ReLU(True),  # 16
+                nn.Conv2d(3, 32, 4, stride=2, padding=1),
+                nn.ReLU(True),  # 128
+                nn.Conv2d(32, 64, 4, stride=2, padding=1),
+                nn.ReLU(True),  # 64
+                nn.Conv2d(64, 128, 4, stride=2, padding=1),
+                nn.ReLU(True),  # 32
+                nn.Conv2d(128, 128, 4, stride=2, padding=1),
+                nn.ReLU(True),  # 16
             )
             # Decoder: each block doubles the spatial size back up.
             self.decoder = nn.Sequential(
-                nn.ConvTranspose2d(128, 128, 4, stride=2, padding=1), nn.ReLU(True),  # 32
-                nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),  nn.ReLU(True),  # 64
-                nn.ConvTranspose2d(64, 32, 4, stride=2, padding=1),   nn.ReLU(True),  # 128
-                nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1),    nn.Sigmoid(),   # 256
+                nn.ConvTranspose2d(128, 128, 4, stride=2, padding=1),
+                nn.ReLU(True),  # 32
+                nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),
+                nn.ReLU(True),  # 64
+                nn.ConvTranspose2d(64, 32, 4, stride=2, padding=1),
+                nn.ReLU(True),  # 128
+                nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1),
+                nn.Sigmoid(),  # 256
             )
 
         def forward(self, x):
@@ -86,9 +95,15 @@ class AutoencoderDetector(BaseDetector):
 
     name = "autoencoder-v1"
 
-    def __init__(self, model=None, threshold: float = 0.5,
-                 image_size: int = 256, device: str = "cpu",
-                 score_min: float = 0.0, score_max: float = 1.0):
+    def __init__(
+        self,
+        model=None,
+        threshold: float = 0.5,
+        image_size: int = 256,
+        device: str = "cpu",
+        score_min: float = 0.0,
+        score_max: float = 1.0,
+    ):
         self.torch = _torch()
         self.model = model
         self.threshold = threshold
@@ -104,10 +119,11 @@ class AutoencoderDetector(BaseDetector):
     def _to_tensor(self, image: np.ndarray):
         """HxWx3 uint8 RGB -> normalised 1x3xHxW float tensor."""
         from PIL import Image
+
         torch = self.torch
         pil = Image.fromarray(np.asarray(image, dtype=np.uint8)).convert("RGB")
         pil = pil.resize((self.image_size, self.image_size))
-        arr = np.asarray(pil, dtype=np.float32) / 255.0          # 0..1
+        arr = np.asarray(pil, dtype=np.float32) / 255.0  # 0..1
         tensor = torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0)  # 1x3xHxW
         return tensor.to(self.device)
 
@@ -120,9 +136,9 @@ class AutoencoderDetector(BaseDetector):
             # Per-pixel squared error, averaged over colour channels -> error map.
             err_map = ((recon - x) ** 2).mean(dim=1).squeeze(0).cpu().numpy()
 
-        raw_score = float(err_map.mean())                 # whole-image anomaly score
-        score = self._normalise(raw_score)                # squash to 0..1
-        heatmap = self._normalise_map(err_map)            # 0..1 localisation map
+        raw_score = float(err_map.mean())  # whole-image anomaly score
+        score = self._normalise(raw_score)  # squash to 0..1
+        heatmap = self._normalise_map(err_map)  # 0..1 localisation map
 
         return DetectionResult(
             score=score,

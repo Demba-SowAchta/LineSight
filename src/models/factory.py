@@ -41,10 +41,12 @@ def load_detector(backend: str | None = None) -> BaseDetector:
 
     if backend in ("autoencoder", "auto") and _autoencoder_path().exists():
         from src.models.autoencoder import AutoencoderDetector
+
         return AutoencoderDetector.load(_autoencoder_path())
 
     if backend in ("classifier", "auto") and _classifier_path().exists():
         from src.models.classifier import ClassifierDetector
+
         return ClassifierDetector.load(_classifier_path())
 
     # Explicit request for a trained model that isn't there yet -> clear guidance.

@@ -25,12 +25,13 @@ from src.models.base import BaseDetector, DetectionResult
 class DummyDetector(BaseDetector):
     name = "dummy-baseline-v1"
 
-    def __init__(self, threshold: float = 0.5,
-                 ref_mean: float = 0.5, ref_edges: float = 0.08):
+    def __init__(
+        self, threshold: float = 0.5, ref_mean: float = 0.5, ref_edges: float = 0.08
+    ):
         # Reference statistics of "good" parts. `fit()` can refine these.
         self.threshold = threshold
-        self.ref_mean = ref_mean       # expected average brightness (0..1)
-        self.ref_edges = ref_edges     # expected edge density (0..1)
+        self.ref_mean = ref_mean  # expected average brightness (0..1)
+        self.ref_edges = ref_edges  # expected edge density (0..1)
 
     def fit(self, good_images: list[np.ndarray]) -> "DummyDetector":
         """
@@ -48,15 +49,15 @@ class DummyDetector(BaseDetector):
         return self
 
     def predict(self, image: np.ndarray) -> DetectionResult:
-        g = self._gray(image)                      # 1) to grayscale, 0..1
-        mean_dev = abs(g.mean() - self.ref_mean)   # 2) global brightness deviation
+        g = self._gray(image)  # 1) to grayscale, 0..1
+        mean_dev = abs(g.mean() - self.ref_mean)  # 2) global brightness deviation
         edge_dev = abs(self._edge_density(g) - self.ref_edges)  # 3) texture deviation
 
         # 4) LOCAL outlier signal: a missing part or scratch is usually a small
         #    region that is much brighter/darker than the rest. We measure the
         #    largest per-block brightness deviation from the image's own mean.
-        dev_map = self._block_deviation_map(g)     # RAW per-block deviations
-        local_dev = float(dev_map.max())           # strongest local anomaly (raw)
+        dev_map = self._block_deviation_map(g)  # RAW per-block deviations
+        local_dev = float(dev_map.max())  # strongest local anomaly (raw)
         m = dev_map.max()
         heatmap = dev_map / m if m > 0 else dev_map  # normalised 0..1 for display
 
@@ -103,7 +104,7 @@ class DummyDetector(BaseDetector):
         heat = np.zeros((blocks, blocks), dtype=np.float32)
         for i in range(blocks):
             for j in range(blocks):
-                block = gray[i * bh:(i + 1) * bh, j * bw:(j + 1) * bw]
+                block = gray[i * bh : (i + 1) * bh, j * bw : (j + 1) * bw]
                 if block.size:
                     heat[i, j] = abs(float(block.mean()) - global_mean)
         return heat
