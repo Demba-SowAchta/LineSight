@@ -14,7 +14,6 @@ Needs OpenCV:  pip install opencv-python
 from __future__ import annotations
 
 import cv2
-import numpy as np
 
 from src.agents import Orchestrator
 from src.utils.images import overlay_heatmap

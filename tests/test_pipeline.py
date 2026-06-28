@@ -14,7 +14,6 @@ RUN:  pytest -q
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from src.database import db
 from src.models.dummy_detector import DummyDetector
