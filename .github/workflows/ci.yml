@@ -1,0 +1,67 @@
+# ---------------------------------------------------------------------------
+# Continuous Integration for the Industrial Vision Platform.
+#
+# On every push and pull request this pipeline:
+#   1. Lints + format-checks the code (ruff)
+#   2. Runs the test suite (pytest) -- no GPU, no dataset needed
+#   3. Builds the Docker image to prove it still builds
+#
+# The tests use the numpy dummy model, so CI is fast (~1 minute) and never needs
+# the dataset or PyTorch. This is deliberate: CI must be cheap and reliable.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install core dependencies
+        run: pip install -r requirements-core.txt
+
+      - name: Lint (ruff)
+        run: ruff check src tests
+
+      - name: Format check (ruff)
+        run: ruff format --check src tests
+
+      - name: Run tests
+        run: pytest -q
+
+  docker-build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t ivp:ci .
+
+  # --- Container vulnerability scan (security gate) -------------------------
+  # Fails the build if the image ships HIGH/CRITICAL CVEs. Best practice for any
+  # image that will run in production. Uncomment to enable once you have a registry.
+  #
+  # trivy-scan:
+  #   runs-on: ubuntu-latest
+  #   needs: docker-build
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: aquasecurity/trivy-action@master
+  #       with:
+  #         image-ref: ivp:ci
+  #         severity: HIGH,CRITICAL
+  #         exit-code: "1"

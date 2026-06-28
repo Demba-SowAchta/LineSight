@@ -1,0 +1,7 @@
+# Minimal Helm chart skeleton (scale-up stub). Not production-complete.
+apiVersion: v2
+name: industrial-vision-platform
+description: Automated visual inspection platform (API + dashboard)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

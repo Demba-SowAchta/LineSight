@@ -1,0 +1,54 @@
+# ---------------------------------------------------------------------------
+# One command to run the whole demo locally:  docker compose up
+#
+#   api        -> REST inference service  (http://localhost:8000/docs)
+#   app        -> Streamlit dashboard     (http://localhost:8501)
+#   postgres   -> production database (optional; the code uses SQLite by default)
+#
+# api and app share the same artifacts volume, so inspections from either show up
+# in both. This mirrors the production split: many services, one source of truth.
+# ---------------------------------------------------------------------------
+services:
+  api:
+    build: .
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      IVP_MODEL_BACKEND: auto
+      IVP_CATEGORY: screw_bag
+      IVP_LINE_ID: LINE-01
+    volumes:
+      - ivp_artifacts:/app/artifacts
+
+  app:
+    build: .
+    command: streamlit run src/app/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      IVP_MODEL_BACKEND: auto
+      IVP_CATEGORY: screw_bag
+    volumes:
+      - ivp_artifacts:/app/artifacts
+    depends_on:
+      - api
+
+  # Optional: a real database for production-style traceability.
+  # To use it, set IVP_DB_URL (see docs/04_mlops.md) and the db layer switches
+  # from SQLite to Postgres with no other code change.
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ivp
+      POSTGRES_PASSWORD: ivp
+      POSTGRES_DB: ivp
+    ports:
+      - "5432:5432"
+    volumes:
+      - ivp_pgdata:/var/lib/postgresql/data
+    profiles: ["prod"]   # only starts with:  docker compose --profile prod up
+
+volumes:
+  ivp_artifacts:
+  ivp_pgdata:

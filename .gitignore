@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Data & models (large; never commit)
+data/*
+!data/mvtec_loco/
+data/mvtec_loco/*
+!data/mvtec_loco/PLACE_DATASET_HERE.md
+models/
+artifacts/
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# Database & generated evidence
+*.db
+*.sqlite
+*.sqlite3
+image_store/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Secrets
+.env
+*.pem
+secrets/

@@ -1,0 +1,10 @@
+# Minimal deps to run the dummy-model pipeline, DB, app and API (no PyTorch).
+# Great for CI and for a first run before training anything.
+numpy>=1.24
+Pillow>=10.0
+streamlit>=1.36
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+pytest>=8.0
+ruff>=0.4

@@ -1,0 +1,25 @@
+# ---- Core (always needed) ---------------------------------------------------
+numpy>=1.24
+Pillow>=10.0
+
+# ---- Prototype app + API ----------------------------------------------------
+streamlit>=1.36
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9        # file uploads for the API
+
+# ---- Model training / inference (PyTorch path) ------------------------------
+# Install the right build for your machine from https://pytorch.org if GPU.
+torch>=2.1
+torchvision>=0.16
+
+# ---- Evaluation plots -------------------------------------------------------
+matplotlib>=3.7
+
+# ---- Optional sources / integrations ----------------------------------------
+opencv-python>=4.8             # webcam demo + industrial camera fallback
+paho-mqtt>=1.6                 # NotificationAgent -> PLC/MES bridge
+
+# ---- Dev / CI ---------------------------------------------------------------
+pytest>=8.0
+ruff>=0.4                      # linting + formatting

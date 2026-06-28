@@ -1,0 +1,26 @@
+# Override per environment (dev/test/staging/prod). Stub values only.
+image:
+  repository: ghcr.io/your-org/industrial-vision-platform
+  tag: latest
+  pullPolicy: IfNotPresent
+
+api:
+  replicas: 2
+  port: 8000
+  resources:
+    requests: { cpu: "250m", memory: "512Mi" }
+    limits:   { cpu: "1",    memory: "1Gi" }
+
+app:
+  replicas: 1
+  port: 8501
+
+# Set to a managed Postgres DSN in production; empty falls back to SQLite (dev only).
+database:
+  dsn: ""
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
