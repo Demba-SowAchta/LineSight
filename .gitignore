@@ -14,7 +14,7 @@ data/*
 !data/mvtec_loco/
 data/mvtec_loco/*
 !data/mvtec_loco/PLACE_DATASET_HERE.md
-models/
+artifacts/models/
 artifacts/
 *.pt
 *.pth
