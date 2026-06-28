@@ -28,8 +28,9 @@ class AcquisitionAgent:
     name = "acquisition"
 
     # --- Source A: a folder of images (development / batch inspection) --------
-    def from_folder(self, folder: str | Path,
-                    exts=(".png", ".jpg", ".jpeg", ".bmp")) -> Iterator[tuple[str, np.ndarray]]:
+    def from_folder(
+        self, folder: str | Path, exts=(".png", ".jpg", ".jpeg", ".bmp")
+    ) -> Iterator[tuple[str, np.ndarray]]:
         """
         Yield (part_id, image) for every image file in a folder.
         We use the filename as a stand-in part_id so each record is traceable.
@@ -40,7 +41,9 @@ class AcquisitionAgent:
                 yield path.stem, load_image(path)
 
     # --- Source B: a single in-memory array (Streamlit upload / API call) -----
-    def from_array(self, image: np.ndarray, part_id: str = "upload") -> tuple[str, np.ndarray]:
+    def from_array(
+        self, image: np.ndarray, part_id: str = "upload"
+    ) -> tuple[str, np.ndarray]:
         """Wrap an already-loaded array so it matches the (part_id, image) shape."""
         return part_id, np.asarray(image, dtype=np.uint8)
 
@@ -54,7 +57,9 @@ class AcquisitionAgent:
         try:
             import cv2
         except ImportError as exc:  # pragma: no cover
-            raise ImportError("Webcam source needs OpenCV: pip install opencv-python") from exc
+            raise ImportError(
+                "Webcam source needs OpenCV: pip install opencv-python"
+            ) from exc
 
         cap = cv2.VideoCapture(camera_index)
         frame_no = 0

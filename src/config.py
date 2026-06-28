@@ -33,7 +33,9 @@ DATA_DIR = Path(_env("IVP_DATA_DIR", str(PROJECT_ROOT / "data" / "mvtec_loco")))
 MODELS_DIR = Path(_env("IVP_MODELS_DIR", str(PROJECT_ROOT / "artifacts" / "models")))
 
 # Where inspected images are archived for traceability.
-IMAGE_STORE_DIR = Path(_env("IVP_IMAGE_STORE", str(PROJECT_ROOT / "artifacts" / "images")))
+IMAGE_STORE_DIR = Path(
+    _env("IVP_IMAGE_STORE", str(PROJECT_ROOT / "artifacts" / "images"))
+)
 
 # SQLite database file used for traceability and analytics.
 # In production this becomes a PostgreSQL URL (see docs/04_mlops.md).

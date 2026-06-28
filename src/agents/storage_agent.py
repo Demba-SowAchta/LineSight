@@ -34,9 +34,17 @@ class StorageAgent:
         self.image_store = Path(image_store or config.IMAGE_STORE_DIR)
         db.init_db()  # make sure the table exists before the first write
 
-    def save(self, *, part_id: str, image: np.ndarray, decision: dict[str, Any],
-             model_name: str, model_version: str | None, latency_ms: float,
-             heatmap: np.ndarray | None = None) -> int:
+    def save(
+        self,
+        *,
+        part_id: str,
+        image: np.ndarray,
+        decision: dict[str, Any],
+        model_name: str,
+        model_version: str | None,
+        latency_ms: float,
+        heatmap: np.ndarray | None = None,
+    ) -> int:
         """
         Archive the evidence and insert a traceability record.
         Returns the new inspection id (a handle the operator can quote later).

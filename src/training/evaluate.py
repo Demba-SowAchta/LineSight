@@ -90,7 +90,9 @@ def main() -> None:
     auroc = _auroc(scores, labels)
 
     print("\n================ RESULTS ================")
-    print(f"Images tested : {len(items)}  (good={int((labels==0).sum())}, defect={int((labels==1).sum())})")
+    print(
+        f"Images tested : {len(items)}  (good={int((labels == 0).sum())}, defect={int((labels == 1).sum())})"
+    )
     print(f"Confusion     : TP={tp}  FP={fp}  TN={tn}  FN={fn}")
     print(f"Precision     : {precision:.3f}")
     print(f"Recall        : {recall:.3f}   (share of defects we catch)")
@@ -102,6 +104,7 @@ def main() -> None:
     # Save plots (best-effort; skip silently if matplotlib is absent).
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -123,8 +126,14 @@ def main() -> None:
 
         # ROC curve
         thresholds = np.linspace(0, 1, 100)
-        tpr = [((scores >= t)[labels == 1]).mean() if (labels == 1).any() else 0 for t in thresholds]
-        fpr = [((scores >= t)[labels == 0]).mean() if (labels == 0).any() else 0 for t in thresholds]
+        tpr = [
+            ((scores >= t)[labels == 1]).mean() if (labels == 1).any() else 0
+            for t in thresholds
+        ]
+        fpr = [
+            ((scores >= t)[labels == 0]).mean() if (labels == 0).any() else 0
+            for t in thresholds
+        ]
         fig2, ax2 = plt.subplots(figsize=(4, 4))
         ax2.plot(fpr, tpr, label=f"AUROC={auroc:.3f}")
         ax2.plot([0, 1], [0, 1], "--", color="gray")

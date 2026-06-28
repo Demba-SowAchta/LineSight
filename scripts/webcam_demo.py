@@ -46,8 +46,15 @@ def main(camera_index: int = 0) -> None:
             color = (0, 0, 255) if result["verdict"] == "FAIL" else (0, 180, 0)
             label = f"{result['verdict']}  score={result['score']:.2f}"
             cv2.rectangle(display, (0, 0), (display.shape[1], 40), color, -1)
-            cv2.putText(display, label, (10, 28),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+            cv2.putText(
+                display,
+                label,
+                (10, 28),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.9,
+                (255, 255, 255),
+                2,
+            )
 
             cv2.imshow("Industrial Vision Platform - live", display)
             if cv2.waitKey(1) & 0xFF == ord("q"):

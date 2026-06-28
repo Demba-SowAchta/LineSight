@@ -23,7 +23,9 @@ def save_image(image: np.ndarray, path: str | Path) -> Path:
     return path
 
 
-def overlay_heatmap(image: np.ndarray, heatmap: np.ndarray, alpha: float = 0.45) -> np.ndarray:
+def overlay_heatmap(
+    image: np.ndarray, heatmap: np.ndarray, alpha: float = 0.45
+) -> np.ndarray:
     """
     Blend a 0..1 anomaly heatmap (red = hot) over the original image.
     The heatmap is resized to match the image, so coarse maps still overlay cleanly.

@@ -24,7 +24,9 @@ try:
     from fastapi import FastAPI, File, UploadFile
     from fastapi.responses import JSONResponse
 except ImportError as exc:  # pragma: no cover
-    raise ImportError("Install the API deps:  pip install fastapi uvicorn python-multipart") from exc
+    raise ImportError(
+        "Install the API deps:  pip install fastapi uvicorn python-multipart"
+    ) from exc
 
 from PIL import Image
 
@@ -70,7 +72,9 @@ def stats() -> dict:
 
 
 @app.post("/inspect")
-async def inspect(file: UploadFile = File(...), part_id: str = "api-upload") -> JSONResponse:
+async def inspect(
+    file: UploadFile = File(...), part_id: str = "api-upload"
+) -> JSONResponse:
     """
     Inspect one uploaded image. Returns the verdict, defect type, score, and the
     database id of the stored record (so the part stays traceable).

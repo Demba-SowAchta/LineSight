@@ -22,7 +22,9 @@ from src.agents import Orchestrator
 from src.database import db
 from src.utils.images import overlay_heatmap
 
-st.set_page_config(page_title="Industrial Vision Platform", page_icon="🔎", layout="wide")
+st.set_page_config(
+    page_title="Industrial Vision Platform", page_icon="🔎", layout="wide"
+)
 
 
 # Build the orchestrator once and cache it (the model loads a single time).
@@ -36,15 +38,19 @@ def get_orchestrator() -> Orchestrator:
 orch = get_orchestrator()
 
 st.title("🔎 Industrial Vision Platform")
-st.caption(f"Assembly-error detection · category **{config.CATEGORY}** · "
-           f"model **{orch.inference.model_name}** · line **{config.LINE_ID}**")
+st.caption(
+    f"Assembly-error detection · category **{config.CATEGORY}** · "
+    f"model **{orch.inference.model_name}** · line **{config.LINE_ID}**"
+)
 
 tab_inspect, tab_dashboard, tab_about = st.tabs(["Inspect", "Dashboard", "About"])
 
 # ---------------------------------------------------------------- Inspect tab
 with tab_inspect:
     st.subheader("Inspect a part")
-    uploaded = st.file_uploader("Upload a product image", type=["png", "jpg", "jpeg", "bmp"])
+    uploaded = st.file_uploader(
+        "Upload a product image", type=["png", "jpg", "jpeg", "bmp"]
+    )
     part_id = st.text_input("Part ID (optional)", value="demo-part")
 
     if uploaded is not None:
@@ -56,16 +62,20 @@ with tab_inspect:
             st.image(image, caption="Input", use_container_width=True)
         with col2:
             if result.get("heatmap") is not None:
-                st.image(overlay_heatmap(image, result["heatmap"]),
-                         caption="Anomaly heatmap (red = suspicious)",
-                         use_container_width=True)
+                st.image(
+                    overlay_heatmap(image, result["heatmap"]),
+                    caption="Anomaly heatmap (red = suspicious)",
+                    use_container_width=True,
+                )
             else:
                 st.info("This model does not produce a heatmap.")
 
         # Big, clear verdict banner.
         if result["verdict"] == "FAIL":
-            st.error(f"❌ FAIL — {result['defect_type']} defect "
-                     f"(severity: {result['severity']})")
+            st.error(
+                f"❌ FAIL — {result['defect_type']} defect "
+                f"(severity: {result['severity']})"
+            )
         else:
             st.success("✅ PASS — no defect detected")
 
@@ -74,8 +84,10 @@ with tab_inspect:
         m2.metric("Threshold", f"{result['threshold']:.3f}")
         m3.metric("Confidence", f"{result['confidence']:.2f}")
         m4.metric("Latency", f"{result['latency_ms']} ms")
-        st.caption(f"Saved to database as inspection #{result['inspection_id']} "
-                   "(image archived for traceability).")
+        st.caption(
+            f"Saved to database as inspection #{result['inspection_id']} "
+            "(image archived for traceability)."
+        )
 
 # -------------------------------------------------------------- Dashboard tab
 with tab_dashboard:
@@ -86,7 +98,7 @@ with tab_dashboard:
     c1.metric("Total inspected", stats["total"])
     c2.metric("Passed", stats["passed"])
     c3.metric("Failed", stats["failed"])
-    c4.metric("Pass rate", f"{stats['pass_rate']*100:.1f}%")
+    c4.metric("Pass rate", f"{stats['pass_rate'] * 100:.1f}%")
 
     if stats["defect_breakdown"]:
         st.markdown("**Defects by type**")

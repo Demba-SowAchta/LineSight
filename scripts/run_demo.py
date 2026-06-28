@@ -18,6 +18,7 @@ the real MVTec LOCO dataset and train a real model. Run it with:
 
     python scripts/run_demo.py
 """
+
 from __future__ import annotations
 
 import sys
@@ -48,7 +49,7 @@ def make_defective() -> np.ndarray:
     """A faulty part: a clean plate with a bright foreign patch (wrong/extra component)."""
     img = make_good().astype(np.float32)
     y, x = RNG.integers(40, IMG - 80, size=2)
-    img[y:y + 50, x:x + 50] += 110  # bright square = anomaly
+    img[y : y + 50, x : x + 50] += 110  # bright square = anomaly
     return np.clip(img, 0, 255).astype(np.uint8)
 
 
@@ -69,19 +70,24 @@ def main() -> None:
     # 3) Wire the pipeline, injecting our fitted detector into the Inference agent.
     #    Every other agent keeps its sensible default -- this single line is the
     #    "how to swap a model" mechanism in action.
-    orch = Orchestrator(inference=InferenceAgent(detector=detector),
-                        model_version="demo")
+    orch = Orchestrator(
+        inference=InferenceAgent(detector=detector), model_version="demo"
+    )
 
     # 4) Inspect everything ----------------------------------------------
     print("\nInspecting parts...\n")
     for i, img in enumerate(good):
         r = orch.inspect_one(part_id=f"GOOD_{i:02d}", image=img)
-        print(f"  {r['part_id']}: {r['verdict']:4s}  score={r['score']:.3f}  "
-              f"thr={r['threshold']:.3f}  {r['latency_ms']}ms")
+        print(
+            f"  {r['part_id']}: {r['verdict']:4s}  score={r['score']:.3f}  "
+            f"thr={r['threshold']:.3f}  {r['latency_ms']}ms"
+        )
     for i, img in enumerate(bad):
         r = orch.inspect_one(part_id=f"BAD_{i:02d}", image=img)
-        print(f"  {r['part_id']}:  {r['verdict']:4s}  score={r['score']:.3f}  "
-              f"thr={r['threshold']:.3f}  defect={r['defect_type']}  {r['latency_ms']}ms")
+        print(
+            f"  {r['part_id']}:  {r['verdict']:4s}  score={r['score']:.3f}  "
+            f"thr={r['threshold']:.3f}  defect={r['defect_type']}  {r['latency_ms']}ms"
+        )
 
     # 5) Read the traceability summary back from the database -------------
     stats = summary_stats()

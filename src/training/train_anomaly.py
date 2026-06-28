@@ -42,14 +42,20 @@ def _load_split(category: str, split: str, label: str | None = None) -> list[str
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Train the autoencoder anomaly detector.")
+    parser = argparse.ArgumentParser(
+        description="Train the autoencoder anomaly detector."
+    )
     parser.add_argument("--category", default=config.CATEGORY)
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--image-size", type=int, default=config.IMAGE_SIZE)
-    parser.add_argument("--threshold-percentile", type=float, default=99.0,
-                        help="Threshold = this percentile of GOOD-val errors.")
+    parser.add_argument(
+        "--threshold-percentile",
+        type=float,
+        default=99.0,
+        help="Threshold = this percentile of GOOD-val errors.",
+    )
     args = parser.parse_args()
 
     # Imports that need PyTorch are done here so the rest of the repo works without it.
@@ -71,20 +77,32 @@ def main() -> None:
             return len(self.paths)
 
         def __getitem__(self, i):
-            img = Image.open(self.paths[i]).convert("RGB").resize((self.size, self.size))
+            img = (
+                Image.open(self.paths[i]).convert("RGB").resize((self.size, self.size))
+            )
             arr = np.asarray(img, dtype=np.float32) / 255.0
             return torch.from_numpy(arr).permute(2, 0, 1)  # 3xHxW
 
     train_paths = _load_split(args.category, "train", "good")
-    val_paths = _load_split(args.category, "val", "good") or _load_split(args.category, "test", "good")
+    val_paths = _load_split(args.category, "val", "good") or _load_split(
+        args.category, "test", "good"
+    )
     print(f"Train good: {len(train_paths)}   Val good: {len(val_paths)}")
 
-    train_loader = DataLoader(ImageFolder(train_paths, args.image_size),
-                              batch_size=args.batch_size, shuffle=True, num_workers=2)
+    train_loader = DataLoader(
+        ImageFolder(train_paths, args.image_size),
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=2,
+    )
     # A val loader over GOOD validation images lets us watch for overfitting:
     # if train loss keeps falling while val loss rises, the model is memorising.
-    val_loader = DataLoader(ImageFolder(val_paths, args.image_size),
-                            batch_size=args.batch_size, shuffle=False, num_workers=2)
+    val_loader = DataLoader(
+        ImageFolder(val_paths, args.image_size),
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=2,
+    )
 
     # ----- model + optimiser --------------------------------------------------
     model = build_autoencoder(args.image_size).to(device)
@@ -103,7 +121,7 @@ def main() -> None:
             batch = batch.to(device)
             optimizer.zero_grad()
             recon = model(batch)
-            loss = loss_fn(recon, batch)   # rebuild error on GOOD images
+            loss = loss_fn(recon, batch)  # rebuild error on GOOD images
             loss.backward()
             optimizer.step()
             total += loss.item() * batch.size(0)
@@ -120,12 +138,15 @@ def main() -> None:
 
         train_losses.append(train_loss)
         val_losses.append(val_loss)
-        print(f"epoch {epoch:3d}/{args.epochs}  train_loss={train_loss:.5f}  "
-              f"val_loss={val_loss:.5f}")
+        print(
+            f"epoch {epoch:3d}/{args.epochs}  train_loss={train_loss:.5f}  "
+            f"val_loss={val_loss:.5f}"
+        )
 
     # ----- save the training-curve plot (rubric: training curves) -------------
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -148,7 +169,9 @@ def main() -> None:
 
     # ----- calibrate the threshold from GOOD validation errors ----------------
     model.eval()  # already in eval after the last val pass, but explicit is clearer
-    detector = AutoencoderDetector(model=model, image_size=args.image_size, device=device)
+    detector = AutoencoderDetector(
+        model=model, image_size=args.image_size, device=device
+    )
     errors = []
     for p in val_paths:
         img = np.asarray(Image.open(p).convert("RGB"), dtype=np.uint8)
@@ -162,8 +185,10 @@ def main() -> None:
     # Threshold: a high percentile of good errors -> few false alarms.
     raw_threshold = float(np.percentile(errors, args.threshold_percentile))
     detector.threshold = detector._normalise(raw_threshold)
-    print(f"Calibrated threshold (norm) = {detector.threshold:.3f} "
-          f"from p{args.threshold_percentile} of {len(errors)} good images")
+    print(
+        f"Calibrated threshold (norm) = {detector.threshold:.3f} "
+        f"from p{args.threshold_percentile} of {len(errors)} good images"
+    )
 
     # ----- save weights + calibration ----------------------------------------
     out = config.MODELS_DIR / f"autoencoder_{args.category}.pt"

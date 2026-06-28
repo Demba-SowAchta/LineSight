@@ -37,13 +37,15 @@ from src.agents.storage_agent import StorageAgent
 
 
 class Orchestrator:
-    def __init__(self,
-                 acquisition: AcquisitionAgent | None = None,
-                 inference: InferenceAgent | None = None,
-                 decision: DecisionAgent | None = None,
-                 storage: StorageAgent | None = None,
-                 notification: NotificationAgent | None = None,
-                 model_version: str | None = None):
+    def __init__(
+        self,
+        acquisition: AcquisitionAgent | None = None,
+        inference: InferenceAgent | None = None,
+        decision: DecisionAgent | None = None,
+        storage: StorageAgent | None = None,
+        notification: NotificationAgent | None = None,
+        model_version: str | None = None,
+    ):
         # Each agent defaults to a sensible instance but can be replaced.
         self.acquisition = acquisition or AcquisitionAgent()
         self.inference = inference or InferenceAgent()
@@ -75,7 +77,9 @@ class Orchestrator:
         )
 
         # 4) NOTIFICATION -- alert the floor on failures only
-        self.notification.notify(inspection_id=inspection_id, part_id=part_id, decision=decision)
+        self.notification.notify(
+            inspection_id=inspection_id, part_id=part_id, decision=decision
+        )
 
         # Return everything the caller (UI/API) needs to display the result.
         return {

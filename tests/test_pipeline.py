@@ -22,7 +22,11 @@ from src.models.base import DetectionResult
 
 def _good_image(seed: int = 0) -> np.ndarray:
     rng = np.random.default_rng(seed)
-    return (np.ones((256, 256, 3)) * 120 + rng.normal(0, 5, (256, 256, 3))).clip(0, 255).astype("uint8")
+    return (
+        (np.ones((256, 256, 3)) * 120 + rng.normal(0, 5, (256, 256, 3)))
+        .clip(0, 255)
+        .astype("uint8")
+    )
 
 
 def _bad_image(seed: int = 0) -> np.ndarray:
@@ -56,6 +60,7 @@ def test_pipeline_writes_traceable_record(tmp_path, monkeypatch):
 
     # Import after patching so agents pick up the patched config.
     from src.agents import Orchestrator
+
     orch = Orchestrator(model_version="test")
 
     good = orch.inspect_one("good-1", _good_image())

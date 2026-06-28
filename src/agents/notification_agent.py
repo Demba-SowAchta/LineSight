@@ -28,15 +28,21 @@ from src import config
 class NotificationAgent:
     name = "notification"
 
-    def __init__(self, channel: str = "console", mqtt_host: str | None = None,
-                 mqtt_topic: str = "factory/quality/alerts"):
+    def __init__(
+        self,
+        channel: str = "console",
+        mqtt_host: str | None = None,
+        mqtt_topic: str = "factory/quality/alerts",
+    ):
         # channel: "console" (demo) or "mqtt" (production bridge to PLC/MES).
         self.channel = channel
         self.mqtt_host = mqtt_host
         self.mqtt_topic = mqtt_topic
         self._mqtt_client = None
 
-    def notify(self, *, inspection_id: int, part_id: str, decision: dict[str, Any]) -> None:
+    def notify(
+        self, *, inspection_id: int, part_id: str, decision: dict[str, Any]
+    ) -> None:
         """Send an alert ONLY for failures; passes stay silent to avoid noise."""
         if decision["verdict"] != "FAIL":
             return
@@ -69,6 +75,7 @@ class NotificationAgent:
         """
         if self._mqtt_client is None:
             import paho.mqtt.client as mqtt  # imported lazily
+
             self._mqtt_client = mqtt.Client()
             self._mqtt_client.connect(self.mqtt_host or "localhost", 1883, 60)
             self._mqtt_client.loop_start()

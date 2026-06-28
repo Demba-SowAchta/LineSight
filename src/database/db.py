@@ -105,7 +105,8 @@ def insert_inspection(record: dict[str, Any], db_path: Path | None = None) -> in
     so callers only have to provide what they actually have.
     """
     row = {
-        "created_at": record.get("created_at") or datetime.now(timezone.utc).isoformat(),
+        "created_at": record.get("created_at")
+        or datetime.now(timezone.utc).isoformat(),
         "line_id": record.get("line_id", config.LINE_ID),
         "station_id": record.get("station_id", config.STATION_ID),
         "category": record.get("category", config.CATEGORY),
@@ -134,7 +135,9 @@ def insert_inspection(record: dict[str, Any], db_path: Path | None = None) -> in
 # ----------------------------------------------------------------------------
 # Reads (used by the dashboard and the /stats API)
 # ----------------------------------------------------------------------------
-def recent_inspections(limit: int = 50, db_path: Path | None = None) -> list[dict[str, Any]]:
+def recent_inspections(
+    limit: int = 50, db_path: Path | None = None
+) -> list[dict[str, Any]]:
     """Return the most recent inspections as a list of dictionaries."""
     with get_connection(db_path) as conn:
         rows = conn.execute(

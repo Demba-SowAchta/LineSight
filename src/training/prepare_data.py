@@ -81,6 +81,7 @@ def main() -> None:
 
     # Print a quick summary so you can sanity-check the split counts.
     from collections import Counter
+
     by_split = Counter(r["split"] for r in rows)
     by_label = Counter(f"{r['split']}/{r['label']}" for r in rows)
     print(f"Manifest written: {out}  ({len(rows)} images)")

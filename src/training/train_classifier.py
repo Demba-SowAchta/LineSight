@@ -111,7 +111,9 @@ def main() -> None:
         acc = correct / total if total else 0.0
         print(f"epoch {epoch:3d}/{args.epochs}  val_acc={acc:.3f}")
 
-    detector = ClassifierDetector(model=model, device=device, class_names=["good", "defect"])
+    detector = ClassifierDetector(
+        model=model, device=device, class_names=["good", "defect"]
+    )
     out = config.MODELS_DIR / f"classifier_{args.category}.pt"
     detector.save(out)
     print(f"Saved model -> {out}")
